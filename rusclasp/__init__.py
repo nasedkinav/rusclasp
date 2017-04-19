@@ -3,4 +3,4 @@
 from .version import __version__
 from .splitter import Splitter
 
-__author__ = u'gree-gorey'
+__author__ = 'gree-gorey'

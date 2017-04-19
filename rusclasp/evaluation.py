@@ -1,15 +1,15 @@
 # -*- coding:utf-8 -*-
 
 import time
-from splitter import PairCorpora, Corpus
+from .splitter import PairCorpora, Corpus
 
-__author__ = u'gree-gorey'
+__author__ = 'gree-gorey'
 
 
 def evaluate():
 
     # new_pair_corpora = PairCorpora(u'/home/gree-gorey/CorpusTemp/', u'/home/gree-gorey/CorpusTemp/')
-    new_pair_corpora = PairCorpora(u'/opt/brat-v1.3_Crunchy_Frog/data/gold/', u'/home/gree-gorey/tested/')
+    new_pair_corpora = PairCorpora('/opt/brat-v1.3_Crunchy_Frog/data/gold/', '/home/gree-gorey/tested/')
     # new_pair_corpora = PairCorpora(u'/opt/brat-v1.3_Crunchy_Frog/data/gold/', u'/home/gree-gorey/stupid/')
     # new_pair_corpora = PairCorpora(u'/opt/brat-v1.3_Crunchy_Frog/data/gold_training/', u'/home/gree-gorey/tested_tested/')
 
@@ -33,17 +33,17 @@ def evaluate():
     # new_pair_corpora.mean_span_size()
     new_pair_corpora.evaluate_window()
 
-    print u'Precision: ', new_pair_corpora.precision
-    print u'Recall: ', new_pair_corpora.recall
-    print u'F-value: ', new_pair_corpora.f_value
+    print('Precision: ', new_pair_corpora.precision)
+    print('Recall: ', new_pair_corpora.recall)
+    print('F-value: ', new_pair_corpora.f_value)
 
 
 def get_size():
 
-    new_corpus = Corpus(u'/home/gree-gorey/CorpusClean/')
+    new_corpus = Corpus('/home/gree-gorey/CorpusClean/')
 
-    print new_corpus.size()
-    print new_corpus.count_sentences()
+    print(new_corpus.size())
+    print(new_corpus.count_sentences())
 
 
 def main():
@@ -55,7 +55,7 @@ def main():
 
     t2 = time.time()
 
-    print t2 - t1
+    print(t2 - t1)
 
 if __name__ == '__main__':
     main()

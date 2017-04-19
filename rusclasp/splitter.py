@@ -8,23 +8,23 @@ import codecs
 import shutil
 import treetaggerwrapper
 
-__author__ = u'gree-gorey'
+__author__ = 'gree-gorey'
 
 
 class Data:
     def __init__(self):
-        self.t = treetaggerwrapper.TreeTagger(TAGLANG=u'ru')
+        self.t = treetaggerwrapper.TreeTagger(TAGLANG='ru')
 
         self.path = os.path.dirname(os.path.abspath(__file__))
 
-        self.complimentizers = json.load(codecs.open(self.path + u'/data/complimentizers.json', u'r', u'utf-8'))
-        self.inserted = json.load(codecs.open(self.path + u'/data/inserted.json', u'r', u'utf-8'))
-        self.predicates = json.load(codecs.open(self.path + u'/data/predicates.json', u'r', u'utf-8'))
-        self.inserted_evidence = json.load(codecs.open(self.path + u'/data/inserted_evidence.json', u'r', u'utf-8'))
-        self.complex_complimentizers = json.load(codecs.open(self.path + u'/data/complex_complimentizers.json', u'r',
-                                                             u'utf-8'))
-        self.specificators = json.load(codecs.open(self.path + u'/data/specificators.json', u'r', u'utf-8'))
-        self.conditional_complimentizers = [u'а', u'как', u'то есть', u'а также']
+        self.complimentizers = json.load(codecs.open(self.path + '/data/complimentizers.json', 'r', 'utf-8'))
+        self.inserted = json.load(codecs.open(self.path + '/data/inserted.json', 'r', 'utf-8'))
+        self.predicates = json.load(codecs.open(self.path + '/data/predicates.json', 'r', 'utf-8'))
+        self.inserted_evidence = json.load(codecs.open(self.path + '/data/inserted_evidence.json', 'r', 'utf-8'))
+        self.complex_complimentizers = json.load(codecs.open(self.path + '/data/complex_complimentizers.json', 'r',
+                                                             'utf-8'))
+        self.specificators = json.load(codecs.open(self.path + '/data/specificators.json', 'r', 'utf-8'))
+        self.conditional_complimentizers = ['а', 'как', 'то есть', 'а также']
 
 myData = Data()
 
@@ -33,12 +33,12 @@ class Splitter:
     def __init__(self):
         self.result = dict()
 
-    def split(self, string, mode=u'json'):
+    def split(self, string, mode='json'):
         # создаем экземпляр класса текст
         text = Text(string)
         # нормализуем и записываем результат в JSON
         text.normalize()
-        self.result[u'text'] = text.result
+        self.result['text'] = text.result
         # делаем pos-tagging
         text.treetagger_analyzer()
         # это так надо чтобы не переделывать весь код
@@ -64,8 +64,8 @@ class Corpus:
             for filename in files:
                 if extension in filename:
                     open_name = self.path + filename
-                    with codecs.open(open_name, u'r', u'utf-8') as f:
-                        if extension == u'json':
+                    with codecs.open(open_name, 'r', 'utf-8') as f:
+                        if extension == 'json':
                             result = json.load(f)
                         else:
                             result = f.read()
@@ -73,7 +73,7 @@ class Corpus:
 
     def size(self):
         tokens = 0
-        for text in self.texts(u'json'):
+        for text in self.texts('json'):
             tokens += len(text.result)
         return tokens
 
@@ -93,15 +93,15 @@ class PairCorpora:
     def annotations(self):
         for root, dirs, files in os.walk(self.path_to_tested):
             for filename in files:
-                if u'.ann' in filename:
+                if '.ann' in filename:
                     open_name_gold = self.path_to_gold + filename
                     open_name_tested = self.path_to_tested + filename
-                    open_name_json = self.path_to_tested + filename.replace(u'ann', u'json')
-                    with codecs.open(open_name_gold, u'r', u'utf-8') as f:
+                    open_name_json = self.path_to_tested + filename.replace('ann', 'json')
+                    with codecs.open(open_name_gold, 'r', 'utf-8') as f:
                         ann_gold = f.readlines()
-                    with codecs.open(open_name_tested, u'r', u'utf-8') as f:
+                    with codecs.open(open_name_tested, 'r', 'utf-8') as f:
                         ann_tested = f.readlines()
-                    with codecs.open(open_name_json, u'r', u'utf-8') as f:
+                    with codecs.open(open_name_json, 'r', 'utf-8') as f:
                         tokens = json.load(f)
                     yield EvaluatedText(ann_gold, ann_tested, tokens)
 
@@ -158,20 +158,20 @@ class EvaluatedText:
 
     def spans_generator(self, annotation):
         for line in annotation:
-            line = line.split(u'\t')
-            if line[0][0] == u'T':
+            line = line.split('\t')
+            if line[0][0] == 'T':
                 new_span = Span()
                 new_span.entity_number = int(line[0][1::])
-                coordinates = line[1].split(u' ')
+                coordinates = line[1].split(' ')
                 new_span.begin = int(coordinates[1])
                 new_span.end = int(coordinates[2])
                 # print new_span.entity_number, new_span.begin
 
                 for token in self.tokens:
-                    if token[u'gr'] not in u'CR,-SENT' and token[u'gr'][0] != u'S':
-                        if token[u'begin'] >= new_span.begin:
-                            if token[u'end'] <= new_span.end:
-                                new_span.tokens.append(token[u'text'])
+                    if token['gr'] not in 'CR,-SENT' and token['gr'][0] != 'S':
+                        if token['begin'] >= new_span.begin:
+                            if token['end'] <= new_span.end:
+                                new_span.tokens.append(token['text'])
                                 # print token[u'text']
                             else:
                                 break
@@ -187,11 +187,11 @@ class EvaluatedText:
 
     def relations_generator(self, annotation):
         for line in annotation:
-            line = line.split(u'\t')
-            if line[0][0] == u'R':
-                arguments = line[1].split(u' ')
-                arg1 = int(arguments[1].split(u':')[1][1::])
-                arg2 = int(arguments[2].split(u':')[1][1::])
+            line = line.split('\t')
+            if line[0][0] == 'R':
+                arguments = line[1].split(' ')
+                arg1 = int(arguments[1].split(':')[1][1::])
+                arg2 = int(arguments[2].split(':')[1][1::])
                 yield (arg1, arg2)
 
 
@@ -205,8 +205,8 @@ class Text:
 
     def treetagger_analyzer(self):
         # self.result = self.result.replace(u' ', u' ')
-        self.result = re.sub(u'["«»‘’]', u'\'', self.result, flags=re.U)
-        self.result = re.sub(u'(^|\. )\'(.+?)\'(, ?)([—-])', u'\\1"\\2"\\3~', self.result, flags=re.U)
+        self.result = re.sub('["«»‘’]', '\'', self.result, flags=re.U)
+        self.result = re.sub('(^|\. )\'(.+?)\'(, ?)([—-])', '\\1"\\2"\\3~', self.result, flags=re.U)
         # print self.result
         self.analysis = myData.t.tag_text(self.result, tagblanks=True)
         # for item in self.analysis:
@@ -214,14 +214,14 @@ class Text:
         position = 0
         new_analysis = []
         for token in self.analysis:
-            if token[0] == u'<':
+            if token[0] == '<':
                 # new_token[u'text'], new_token[u'gr'], new_token[u'lex'] = None, u'SPACE', None
                 position += 1
             else:
                 new_token = dict(begin=position)
-                new_token[u'text'], new_token[u'gr'], new_token[u'lex'] = token.split(u'\t')
-                position += len(new_token[u'text'])
-                new_token[u'end'] = position
+                new_token['text'], new_token['gr'], new_token['lex'] = token.split('\t')
+                position += len(new_token['text'])
+                new_token['end'] = position
                 new_analysis.append(new_token)
         self.analysis = new_analysis
 
@@ -250,7 +250,7 @@ class Text:
         self.sentence_off()
 
     def end_of_sentence(self):
-        if self.sentences[-1].tokens[-1].pos == u'PERIOD':  # if it is a period
+        if self.sentences[-1].tokens[-1].pos == 'PERIOD':  # if it is a period
             # print 1
             if self.sentences[-1].tokens[-1].next_token_title:  # if the next token is uppercase
                 # print 1
@@ -276,88 +276,88 @@ class Text:
                 self.sentences[-1].after_name = [False, 0]
             self.sentences[-1].after_name[1] += 1
         if len(self.sentences[-1].tokens[-1].pos) > 1:
-            if self.sentences[-1].tokens[-1].pos[1] == u'p':
+            if self.sentences[-1].tokens[-1].pos[1] == 'p':
                 self.sentences[-1].after_name[0] = True
-        if self.sentences[-1].tokens[-1].pos == u'-':
-            if self.sentences[-1].tokens[-1].content[0].isalpha() and u'.' in self.sentences[-1].tokens[-1].content:
+        if self.sentences[-1].tokens[-1].pos == '-':
+            if self.sentences[-1].tokens[-1].content[0].isalpha() and '.' in self.sentences[-1].tokens[-1].content:
                 self.sentences[-1].after_abbreviation = True
         else:
             self.sentences[-1].after_abbreviation = False
 
     def add_punctuation(self, token, next_token, token_after_next=None):
-        if token[u'gr'] == u',':
-            self.sentences[-1].tokens[-1].pos = u'COMMA'
+        if token['gr'] == ',':
+            self.sentences[-1].tokens[-1].pos = 'COMMA'
             if len(self.sentences[-1].tokens) > 1:
                 if self.sentences[-1].tokens[-2].content[-1].isdigit():
                     if next_token is not None:
-                        if next_token[u'text'][0].isdigit():
-                            self.sentences[-1].tokens[-1].pos = u'pseudoCOMMA'
-        elif token[u'gr'] == u'-':
-            if token[u'lex'] in u'-:;':
-                self.sentences[-1].tokens[-1].pos = u'COMMA'
-                self.sentences[-1].tokens[-1].lex = token[u'lex']
-            elif token[u'lex'] in u'—':
-                self.sentences[-1].tokens[-1].pos = u'pairCOMMA'
-                self.sentences[-1].tokens[-1].lex = token[u'lex']
-            elif token[u'lex'] in u'()':
-                self.sentences[-1].tokens[-1].pos = u'pairCOMMA'
-                self.sentences[-1].tokens[-1].lex = u'|'
-            elif token[u'lex'] in u'\'':
-                self.sentences[-1].tokens[-1].pos = u'QUOTE'
+                        if next_token['text'][0].isdigit():
+                            self.sentences[-1].tokens[-1].pos = 'pseudoCOMMA'
+        elif token['gr'] == '-':
+            if token['lex'] in '-:;':
+                self.sentences[-1].tokens[-1].pos = 'COMMA'
+                self.sentences[-1].tokens[-1].lex = token['lex']
+            elif token['lex'] in '—':
+                self.sentences[-1].tokens[-1].pos = 'pairCOMMA'
+                self.sentences[-1].tokens[-1].lex = token['lex']
+            elif token['lex'] in '()':
+                self.sentences[-1].tokens[-1].pos = 'pairCOMMA'
+                self.sentences[-1].tokens[-1].lex = '|'
+            elif token['lex'] in '\'':
+                self.sentences[-1].tokens[-1].pos = 'QUOTE'
             else:
-                self.sentences[-1].tokens[-1].pos = u'UNKNOWN'
-                self.sentences[-1].tokens[-1].lex = token[u'lex']
-        elif token[u'gr'] == u'SENT':
+                self.sentences[-1].tokens[-1].pos = 'UNKNOWN'
+                self.sentences[-1].tokens[-1].lex = token['lex']
+        elif token['gr'] == 'SENT':
             self.add_period(next_token, token_after_next)
 
     def add_period(self, next_token, token_after_next=None):
-        self.sentences[-1].tokens[-1].pos = u'PERIOD'
+        self.sentences[-1].tokens[-1].pos = 'PERIOD'
         if self.sentences[-1].after_abbreviation:
             self.sentences[-1].tokens[-1].after_abbreviation = True
         if next_token and token_after_next:
-            if next_token[u'text'].replace(u'-', u'').istitle():
+            if next_token['text'].replace('-', '').istitle():
                 # print next_token[u'text']
                 self.sentences[-1].tokens[-1].next_token_title = True
-                if next_token[u'gr'][0] == u'N':
-                    if next_token[u'gr'][1] == u'p':
+                if next_token['gr'][0] == 'N':
+                    if next_token['gr'][1] == 'p':
                         self.sentences[-1].tokens[-1].next_token_name = True
-            elif next_token[u'text'] in u'\"\'' and token_after_next[u'text'].replace(u'-', u'').istitle():
+            elif next_token['text'] in '\"\'' and token_after_next['text'].replace('-', '').istitle():
                 # print next_token[u'text']
                 self.sentences[-1].tokens[-1].next_token_title = True
-                if next_token[u'gr'][0] == u'N':
-                    if next_token[u'gr'][1] == u'p':
+                if next_token['gr'][0] == 'N':
+                    if next_token['gr'][1] == 'p':
                         self.sentences[-1].tokens[-1].next_token_name = True
         elif next_token:
             # print next_token[u'text']
-            if next_token[u'text'].replace(u'-', u'').istitle():
+            if next_token['text'].replace('-', '').istitle():
                 # print next_token[u'text']
                 self.sentences[-1].tokens[-1].next_token_title = True
-                if next_token[u'gr'][0] == u'N':
-                    if next_token[u'gr'][1] == u'p':
+                if next_token['gr'][0] == 'N':
+                    if next_token['gr'][1] == 'p':
                         self.sentences[-1].tokens[-1].next_token_name = True
 
                 # elif next_token[u'gr'] == u'-':
                 #     self.sentences[-1].tokens[-1].next_token_title = False
 
     def add_word(self, token, next_token):
-        if u'.' in token[u'text']:
-            if token[u'text'][:-1:].isdigit():
-                self.sentences[-1].tokens[-1].pos = u'M'
+        if '.' in token['text']:
+            if token['text'][:-1:].isdigit():
+                self.sentences[-1].tokens[-1].pos = 'M'
                 self.sentences[-1].tokens[-1].end -= 1
                 self.sentences[-1].tokens.append(Token())
                 self.sentences[-1].tokens[-1].begin = self.sentences[-1].tokens[-2].end
                 self.sentences[-1].tokens[-1].end = self.sentences[-1].tokens[-1].begin + 1
             self.add_period(next_token)
         else:
-            self.sentences[-1].tokens[-1].pos = token[u'gr']
-            self.sentences[-1].tokens[-1].lex = token[u'lex']
+            self.sentences[-1].tokens[-1].pos = token['gr']
+            self.sentences[-1].tokens[-1].lex = token['lex']
 
     def add_token(self, token, next_token=None, token_after_next=None):
         self.sentences[-1].tokens.append(Token())
-        self.sentences[-1].tokens[-1].begin = token[u'begin']
-        self.sentences[-1].tokens[-1].end = token[u'end']
-        self.sentences[-1].tokens[-1].content = token[u'text']
-        if token[u'gr'][0].isalpha() and token[u'gr'] != u'SENT':
+        self.sentences[-1].tokens[-1].begin = token['begin']
+        self.sentences[-1].tokens[-1].end = token['end']
+        self.sentences[-1].tokens[-1].content = token['text']
+        if token['gr'][0].isalpha() and token['gr'] != 'SENT':
             self.add_word(token, next_token)
         else:
             self.add_punctuation(token, next_token, token_after_next)
@@ -365,13 +365,13 @@ class Text:
 
     def write_stupid_clause_ann(self):
         i = 0
-        write_name = self.path.replace(u'json', u'ann')
-        w = codecs.open(write_name, u'w', u'utf-8')
+        write_name = self.path.replace('json', 'ann')
+        w = codecs.open(write_name, 'w', 'utf-8')
 
         for sentence in self.sentences:
             for span in sentence.spans:
                 i += 1
-                line = u'T' + str(i) + u'\t' + u'Span ' + str(span.begin) + u' ' + str(span.end) + u'\t' + u'\n'
+                line = 'T' + str(i) + '\t' + 'Span ' + str(span.begin) + ' ' + str(span.end) + '\t' + '\n'
                 w.write(line)
 
         w.close()
@@ -380,28 +380,28 @@ class Text:
         i = 0
         j = 0
 
-        write_name = self.path.replace(u'json', u'ann')
-        w = codecs.open(write_name, u'w', u'utf-8')
+        write_name = self.path.replace('json', 'ann')
+        w = codecs.open(write_name, 'w', 'utf-8')
 
         for sentence in self.sentences:
             for span in sentence.spans:
                 if span.embedded:
                     i += 1
-                    line = u'T' + str(i) + u'\t' + u'Embedded ' + str(span.begin) + u' ' + str(span.end) + u'\t' + u'\n'
+                    line = 'T' + str(i) + '\t' + 'Embedded ' + str(span.begin) + ' ' + str(span.end) + '\t' + '\n'
                     w.write(line)
                 elif span.inserted:
                     i += 1
-                    line = u'T' + str(i) + u'\t' + u'Inserted ' + str(span.begin) + u' ' + str(span.end) + u'\t' + u'\n'
+                    line = 'T' + str(i) + '\t' + 'Inserted ' + str(span.begin) + ' ' + str(span.end) + '\t' + '\n'
                     w.write(line)
                 elif span.base:
                     i += 1
-                    line = u'T' + str(i) + u'\t' + u'Base ' + str(span.begin) + u' ' + str(span.end) + u'\t' + u'\n'
+                    line = 'T' + str(i) + '\t' + 'Base ' + str(span.begin) + ' ' + str(span.end) + '\t' + '\n'
                     w.write(line)
                 span.entity_number = i
             for r in sentence.relations:
                 j += 1
-                line = u'R' + str(j) + u'\t' + u'Split Arg1:T' + str(sentence.spans[r[0]].entity_number) +\
-                       u' Arg2:T' + str(sentence.spans[r[1]].entity_number) + u'\t' + u'\n'
+                line = 'R' + str(j) + '\t' + 'Split Arg1:T' + str(sentence.spans[r[0]].entity_number) +\
+                       ' Arg2:T' + str(sentence.spans[r[1]].entity_number) + '\t' + '\n'
                 w.write(line)
             # for r in sentence.verb_relations:
             #     # print sentence.spans[r[1]].entity_number
@@ -413,8 +413,8 @@ class Text:
         w.close()
 
     def get_json(self, result):
-        result[u'entities'] = list()
-        result[u'relations'] = list()
+        result['entities'] = list()
+        result['relations'] = list()
 
         i = 0
         j = 0
@@ -424,57 +424,57 @@ class Text:
                 if span.embedded or span.inserted or span.base:
                     i += 1
                     entity = list()
-                    entity.append(u'T' + str(i))
-                    entity.append(u'Span')
+                    entity.append('T' + str(i))
+                    entity.append('Span')
                     entity.append([[span.begin, span.end]])
 
-                    result[u'entities'].append(entity)
+                    result['entities'].append(entity)
 
                 span.entity_number = i
             for r in sentence.relations:
                 j += 1
                 relation = list()
-                relation.append(u'R' + str(j))
-                relation.append(u'Split')
-                arg1 = u'T' + str(sentence.spans[r[0]].entity_number)
-                arg2 = u'T' + str(sentence.spans[r[1]].entity_number)
-                relation.append([[u'LeftSpan', arg1], [u'RightSpan', arg2]])
+                relation.append('R' + str(j))
+                relation.append('Split')
+                arg1 = 'T' + str(sentence.spans[r[0]].entity_number)
+                arg2 = 'T' + str(sentence.spans[r[1]].entity_number)
+                relation.append([['LeftSpan', arg1], ['RightSpan', arg2]])
 
-                result[u'relations'].append(relation)
+                result['relations'].append(relation)
 
 
     def write_dummy_ann(self):
-        write_name = self.path.replace(u'txt', u'ann')
-        w = codecs.open(write_name, u'w', u'utf-8')
+        write_name = self.path.replace('txt', 'ann')
+        w = codecs.open(write_name, 'w', 'utf-8')
         w.close()
 
     def write_pos_ann(self):
-        name = self.path[:-3:] + u'json'
-        w = codecs.open(name, u'w', u'utf-8')
+        name = self.path[:-3:] + 'json'
+        w = codecs.open(name, 'w', 'utf-8')
         json.dump(self.analysis, w, ensure_ascii=False, indent=2)
         w.close()
 
     def copy_into_brat(self, path, dummy=False):
         if dummy:
             text = self.path
-            ann = self.path.replace(u'txt', u'ann')
+            ann = self.path.replace('txt', 'ann')
         else:
-            text = self.path.replace(u'json', u'txt')
-            ann = self.path.replace(u'json', u'ann')
-        shutil.copy(text, path + text.split(u'/')[-1])
-        shutil.copy(ann, path + ann.split(u'/')[-1])
+            text = self.path.replace('json', 'txt')
+            ann = self.path.replace('json', 'ann')
+        shutil.copy(text, path + text.split('/')[-1])
+        shutil.copy(ann, path + ann.split('/')[-1])
 
     def normalize(self, mode=None):
-        self.result = self.result.replace(u' ', u' ')
-        self.result = self.result.replace(u'\r\n', u' ')
-        self.result = self.result.replace(u'\n', u' ')
-        self.result = self.result.replace(u'…', u'...')
-        self.result = re.sub(u'( |^)[A-Za-z]+?\.[A-Za-z].*?( |$)', u'\\1"Английское название"\\2', self.result,
+        self.result = self.result.replace(' ', ' ')
+        self.result = self.result.replace('\r\n', ' ')
+        self.result = self.result.replace('\n', ' ')
+        self.result = self.result.replace('…', '...')
+        self.result = re.sub('( |^)[A-Za-z]+?\.[A-Za-z].*?( |$)', '\\1"Английское название"\\2', self.result,
                              flags=re.U)
-        self.result = re.sub(u' +', u' ', self.result, flags=re.U)
-        self.result = re.sub(u' $', u'', self.result, flags=re.U)
+        self.result = re.sub(' +', ' ', self.result, flags=re.U)
+        self.result = re.sub(' $', '', self.result, flags=re.U)
         if mode:
-            with codecs.open(self.path, u'w', u'utf-8') as w:
+            with codecs.open(self.path, 'w', 'utf-8') as w:
                 w.write(self.result)
 
 
@@ -522,7 +522,7 @@ class Sentence:
 
     def contain_structure(self):
         for token in self.tokens:
-            if token.lex == u'который':
+            if token.lex == 'который':
                 return True
 
     def add_token(self, token):
@@ -540,16 +540,16 @@ class Sentence:
             # print self.spans[-1].tokens[-1].content
             self.span = False
             if self.spans[-1].tokens[-1].content:
-                if self.spans[-1].tokens[-1].content in u';()':
+                if self.spans[-1].tokens[-1].content in ';()':
                     self.spans[-1].semicolon = True
-                elif self.spans[-1].tokens[-1].content == u'—':
+                elif self.spans[-1].tokens[-1].content == '—':
                     # print 1
                     self.spans[-1].before_dash = True
-                elif self.spans[-1].tokens[-1].content == u':':
+                elif self.spans[-1].tokens[-1].content == ':':
                     # print 1
                     self.spans[-1].before_colon = True
 
-            if self.spans[-1].tokens[0].lex == u'~':
+            if self.spans[-1].tokens[0].lex == '~':
                 self.spans[-1].tokens.pop(0)
 
             if len(self.spans[-1].tokens) > 0:
@@ -560,7 +560,7 @@ class Sentence:
 
     def span_splitter(self):
         for token in self.tokens:
-            if token.content != u'\"':
+            if token.content != '\"':
                 self.span_on()
                 self.add_token(token)
             else:
@@ -580,7 +580,7 @@ class Sentence:
             add = False
             off = False
             while not add:
-                if token.content != u'\"':
+                if token.content != '\"':
                     self.span_on()
                     self.add_token(token)
                     if not token.stupid_end_of_span():
@@ -598,7 +598,7 @@ class Sentence:
                     # print token.content
                     self.span_off()
                     off = True
-                    if token.pos == u'COMMA':
+                    if token.pos == 'COMMA':
                         add = True
                 # elif token.content != u'\"':
                 #     self.span_on()
@@ -606,43 +606,43 @@ class Sentence:
 
     def eliminate_pair_comma(self):
         predicate = False
-        begin = {u'—': False, u'|': False, u'"': False}
+        begin = {'—': False, '|': False, '"': False}
         end = False
         left = None
         for i, token in enumerate(self.tokens):
             # print token.content
-            if token.pos == u'pairCOMMA' and not begin[token.lex]:
+            if token.pos == 'pairCOMMA' and not begin[token.lex]:
                 # print token.content, 777
                 left = i
                 begin[token.lex] = True
                 end = False
-            elif token.pos[0] == u'V' and sum(begin.values()) > 0:
+            elif token.pos[0] == 'V' and sum(begin.values()) > 0:
                 # print token.content
                 predicate = True
-            elif token.pos == u'pairCOMMA' and begin[token.lex]:
+            elif token.pos == 'pairCOMMA' and begin[token.lex]:
                 right = i
                 begin[token.lex] = False
                 if predicate:
-                    self.tokens[left].pos = self.tokens[right].pos = u'COMMA'
+                    self.tokens[left].pos = self.tokens[right].pos = 'COMMA'
                 predicate = False
                 end = True
         if not end and left:
             # print 1
-            self.tokens[left].pos = u'COMMA'
+            self.tokens[left].pos = 'COMMA'
 
     def find_names(self):
         begin = False
         name = False
         for i, token in enumerate(self.tokens):
-            if token.pos == u'QUOTE' and not begin:
+            if token.pos == 'QUOTE' and not begin:
                 if len(self.tokens) > i+1:
                     if self.tokens[i+1].content.istitle():
                         name = True
                 begin = True
-            elif token.pos[0] == u'V' and begin:
+            elif token.pos[0] == 'V' and begin:
                 if name:
-                    token.pos = u'insideNAME'
-            elif token.pos == u'QUOTE' and begin:
+                    token.pos = 'insideNAME'
+            elif token.pos == 'QUOTE' and begin:
                 begin = False
 
     def get_shared_tokens(self):
@@ -653,7 +653,7 @@ class Sentence:
         new = []
         for span in self.spans:
             if len(span.tokens) > 1:
-                if span.tokens[0].pos == u'C' and span.tokens[1].pos == u'C':
+                if span.tokens[0].pos == 'C' and span.tokens[1].pos == 'C':
                     if span.tokens[0].lex in myData.complimentizers and span.tokens[1].lex in myData.complimentizers:
                         new_span = copy.deepcopy(span)
                         new_span.tokens = span.tokens[:1:]
@@ -921,15 +921,15 @@ class Sentence:
             if span.embedded:
                 # print span.embedded_type
                 find_gerund = False
-                if span.embedded_type == u'gerund':
+                if span.embedded_type == 'gerund':
                     if span.gerund > 1:
                         for i, token in reversed(list(enumerate(span.tokens))):
                             if len(token.pos) > 2:
-                                if token.pos[0] == u'V':
-                                    if token.pos[2] == u'g':
+                                if token.pos[0] == 'V':
+                                    if token.pos[2] == 'g':
                                         find_gerund = True
                                         find += True
-                            elif token.lex == u'и':
+                            elif token.lex == 'и':
                                 if find_gerund:
                                     if i > 0:
                                         new_span = Span()
@@ -941,17 +941,17 @@ class Sentence:
                                         self.new_spans.append(new_span)
                                         break
                 find_participle = False
-                if span.embedded_type == u'participle':
+                if span.embedded_type == 'participle':
                     # print span.participle_number()
                     if span.participle_number() > 1:
                         # print 1
                         for i, token in reversed(list(enumerate(span.tokens))):
                             if len(token.pos) > 2:
-                                if token.pos[0] == u'V':
-                                    if token.pos[2] == u'p':
+                                if token.pos[0] == 'V':
+                                    if token.pos[2] == 'p':
                                         find_participle = True
                                         find += True
-                            elif token.lex == u'и':
+                            elif token.lex == 'и':
                                 if find_participle:
                                     if i > 0:
                                         new_span = Span()
@@ -1003,7 +1003,7 @@ class Sentence:
         # and_number = len([True for token in span.tokens if token.lex == u'и'])
         predicate_number = len([True for token in span.tokens if token.predicate()])
         infinitive_number = len([True for token in span.tokens if token.infinitive()])
-        predicate_after_and = len([True for i, token in enumerate(span.tokens[:-1:]) if token.lex == u'и' and
+        predicate_after_and = len([True for i, token in enumerate(span.tokens[:-1:]) if token.lex == 'и' and
                                    (span.tokens[i+1].predicate() or span.tokens[i+1].infinitive() or
                                     span.tokens[i+1].gerund_participle())])
 
@@ -1029,7 +1029,7 @@ class Sentence:
             #                         # return False
             # elif and_number > 1:
             for i, token in reversed(list(enumerate(span.tokens))):
-                if token.lex == u'и':
+                if token.lex == 'и':
                     if i > 0 and i < len(span.tokens) - 1:
                         # print len(span.tokens) - 1
                         # print i
@@ -1056,7 +1056,7 @@ class Sentence:
         # print span.tokens[0].content, predicate_number
         if infinitive_number > 1 or (predicate_after_and and not span.finite() and infinitive_number < 2):
             for i, token in reversed(list(enumerate(span.tokens))):
-                if token.lex == u'и':
+                if token.lex == 'и':
                     if i > 0:
                         left_span = Span()
                         left_span.tokens = left_span.shared_tokens = span.tokens[:i:]
@@ -1083,7 +1083,7 @@ class Sentence:
         # print span.tokens[0].content, predicate_number, predicate_after_and
         if predicate_after_and:
             for i, token in reversed(list(enumerate(span.tokens))):
-                if token.lex == u'и':
+                if token.lex == 'и':
                     if i > 0:
                         left_span = Span()
                         left_span.tokens = left_span.shared_tokens = span.tokens[:i:]
@@ -1098,7 +1098,7 @@ class Sentence:
                                 # if following_token.lex == u'который':
                                 #     continue
                                 if following_token.gerund_participle():
-                                    return self.split_spans(span, i, embedded_type=u'participle')
+                                    return self.split_spans(span, i, embedded_type='participle')
 
                                 # elif following_token.pos[0] != u'R':
                                 #     return False
@@ -1118,25 +1118,25 @@ class Sentence:
                         while len(new) != item[1]:
                             j += 1
                             # try:
-                            if u'COMMA' not in self.tokens[j].pos:
+                            if 'COMMA' not in self.tokens[j].pos:
                                 new.append(self.tokens[j])
                             # except:
                             # print u' '.join([token.content for token in self.tokens])
-                        new_complimentizer = u' '.join([next_token.content.lower() for next_token in new])
+                        new_complimentizer = ' '.join([next_token.content.lower() for next_token in new])
 
                         # print new_complimentizer_lex, 2
                         if new_complimentizer == item[0]:
                             # print new_complimentizer
                             token.content = new_complimentizer
                             token.lex = new_complimentizer
-                            token.pos = u'C'
+                            token.pos = 'C'
                             token.end = new[-1].end
                             for next_token in self.tokens[i+1:j+1:]:
                                 self.tokens.remove(next_token)
                             if i != 0:
-                                if u'COMMA' not in self.tokens[i-1].pos:
+                                if 'COMMA' not in self.tokens[i-1].pos:
                                     new_comma = Token()
-                                    new_comma.pos = u'COMMA'
+                                    new_comma.pos = 'COMMA'
                                     self.tokens.insert(i, new_comma)
 
     def find_np(self):
@@ -1151,33 +1151,33 @@ class Sentence:
                             if not following_token.in_pp:
                                 if not following_token.in_np:
                                     # self.tokens[j].in_pp = True
-                                    if following_token.pos == u'S':
+                                    if following_token.pos == 'S':
                                         if token.agree_adj_noun(following_token):
                                             self.np.append([i, j])
                                             # print self.tokens[j].content
-                                            for k in xrange(i, j+1):
+                                            for k in range(i, j+1):
                                                 self.tokens[k].in_np = True
                                                 match = j
                                             break
 
     def find_pp(self):
         for i, token in reversed(list(enumerate(self.tokens))):
-            if token.pos[0] == u'S':
+            if token.pos[0] == 'S':
                 # print token.content, u'\n'
                 for j, following_token in enumerate(self.tokens[i+1::], start=i+1):
                     # print following_token.content, 555, following_token.in_pp
                     if not following_token.in_pp:
                         # print following_token.content, 777
-                        if following_token.pos[0] in u'NP':
+                        if following_token.pos[0] in 'NP':
                             # print following_token.content, 888
                             if token.agree_pr_noun(following_token):
                                 # print following_token.content
                                 self.pp.append([i, j])
                                 for inner_token in self.tokens[i: j+1]:
-                                    print inner_token.content
+                                    print(inner_token.content)
                                     inner_token.in_pp = True
-                                    if inner_token.pos == u'COMMA':
-                                        inner_token.pos = u'pseudoCOMMA'
+                                    if inner_token.pos == 'COMMA':
+                                        inner_token.pos = 'pseudoCOMMA'
                                 break
 
     def eliminate_and_disambiguate(self):
@@ -1218,7 +1218,7 @@ class Span:
         # self.finite = False
 
     def incomplete(self):
-        if self.embedded_type == u'complement' or self.embedded_type == u'relative':
+        if self.embedded_type == 'complement' or self.embedded_type == 'relative':
             return not self.finite()
 
     def predicate_coordination(self, following_span):
@@ -1229,11 +1229,11 @@ class Span:
                 if self.embedded_type and following_span.embedded_type:
                     if self.embedded_type != following_span.embedded_type:
                         return False
-                    if self.embedded_type == u'complement':
+                    if self.embedded_type == 'complement':
                         if self.complement_type != following_span.complement_type:
                             return False
                 for token in reversed(self.shared_tokens):
-                    if re.match(u'(N...n.)|(P....n.)|(M...[n-])', token.pos):
+                    if re.match('(N...n.)|(P....n.)|(M...[n-])', token.pos):
                         return False
                     if token.predicate():
                         # print token.content
@@ -1257,7 +1257,7 @@ class Span:
             return True
         for token in reversed(self.shared_tokens):
             # print token.content, 9000
-            if following_span.tokens[0].lex == u'как':
+            if following_span.tokens[0].lex == 'как':
                 return True
             if token.predicate() or token.infinitive():
                 # print token.lex
@@ -1267,9 +1267,9 @@ class Span:
                     # print 777
                     # print token.lex
                     return True
-                if token.lex == u'такой' and following_span.tokens[0].lex == u'как':
+                if token.lex == 'такой' and following_span.tokens[0].lex == 'как':
                     return True
-                if following_span.tokens[0].lex == u'прежде всего':
+                if following_span.tokens[0].lex == 'прежде всего':
                     return True
 
     def find_right(self, token):
@@ -1278,14 +1278,14 @@ class Span:
             if token_right.predicate() or token_right.infinitive():
                 return False
             else:
-                if token.pos[0] in u'ANP' and token_right.pos[0] in u'ANP':
+                if token.pos[0] in 'ANP' and token_right.pos[0] in 'ANP':
                     # print token.content, token_right.content
                     # print token.case(), token_right.case()
                     if token.case() == token_right.case():
                         return True
-                elif token.pos[0] == u'R' and token_right.pos[0] == u'R':
+                elif token.pos[0] == 'R' and token_right.pos[0] == 'R':
                     return True
-                elif token.pos[0] == u'M' and token_right.pos[0] == u'M':
+                elif token.pos[0] == 'M' and token_right.pos[0] == 'M':
                     return True
         return False
 
@@ -1297,27 +1297,27 @@ class Span:
 
     def is_inserted(self):
         if len(self.tokens) < 10:
-            if self.tokens[0].lex in [u'по', u'на']:
+            if self.tokens[0].lex in ['по', 'на']:
                 if len(self.tokens) > 2:
                     if self.tokens[1].content in myData.inserted_evidence or self.tokens[2].content in myData.inserted_evidence:
                         return True
-            elif self.tokens[0].lex == u'согласно':
+            elif self.tokens[0].lex == 'согласно':
                 return True
             if self.tokens[0].content.lower() in myData.inserted:
                 # print self.tokens[0].content.lower()
-                content = u''
+                content = ''
                 for token in self.tokens:
                     content += token.content.lower()
-                    content += u' '
+                    content += ' '
                 for var in myData.inserted[self.tokens[0].content.lower()]:
                     if var == content[:-1:]:
                         return True
 
     def is_embedded(self):
         if not self.inserted:
-            if self.tokens[0].pos[0] in u'CP':
-                if self.tokens[0].content == u'несмотря на':
-                    self.embedded_type = u'gerund'
+            if self.tokens[0].pos[0] in 'CP':
+                if self.tokens[0].content == 'несмотря на':
+                    self.embedded_type = 'gerund'
                     return True
                 # print self.tokens[0].content
                 if self.tokens[0].lex in myData.complimentizers:
@@ -1325,45 +1325,45 @@ class Span:
                         # print self.tokens[0].lex, self.tokens[1].lex
                         if self.finite():
                             # print self.tokens[0].lex, self.tokens[2].lex, 777
-                            self.embedded_type = u'complement'
+                            self.embedded_type = 'complement'
                             self.complement_type = self.tokens[0].lex
                             return True
                         else:
                             return False
                     else:
-                        self.embedded_type = u'complement'
+                        self.embedded_type = 'complement'
                         self.complement_type = self.tokens[0].lex
                         return True
 
             for token in self.tokens:
-                if token.lex == u'который':
+                if token.lex == 'который':
                     self.relative += 1
                 if len(token.pos) > 2:
-                    if token.pos[0] == u'V':
-                        if token.pos[2] == u'g':
+                    if token.pos[0] == 'V':
+                        if token.pos[2] == 'g':
                             self.gerund += 1
-                        elif token.pos[2] == u'i':
+                        elif token.pos[2] == 'i':
                             self.indicative = True
 
-            if self.tokens[0].lex == u'какой':
-                self.embedded_type = u'relative'
+            if self.tokens[0].lex == 'какой':
+                self.embedded_type = 'relative'
                 return True
 
             if self.gerund > 0 and not self.finite():
-                self.embedded_type = u'gerund'
+                self.embedded_type = 'gerund'
                 return True
             elif self.relative > 0:
-                self.embedded_type = u'relative'
+                self.embedded_type = 'relative'
                 return True
 
             for token in self.tokens:
                 # print token.content, token.pos
-                if token.pos[0] in u'CQR':
+                if token.pos[0] in 'CQR':
                     continue
-                elif re.match(u'V.p.+', token.pos):
+                elif re.match('V.p.+', token.pos):
                     # print token.content, 777
                     if not self.finite():
-                        self.embedded_type = u'participle'
+                        self.embedded_type = 'participle'
                         return True
                 else:
                     return False
@@ -1372,9 +1372,9 @@ class Span:
 
     def accept_embedded(self, other):
         if self.inside_quotes is other.inside_quotes:
-            if self.embedded_type == u'gerund' or self.embedded_type == u'participle':
+            if self.embedded_type == 'gerund' or self.embedded_type == 'participle':
                 return not other.finite() and not other.nominative()
-            elif self.embedded_type == u'relative' or self.embedded_type == u'complement':
+            elif self.embedded_type == 'relative' or self.embedded_type == 'complement':
                 if self.incomplete():
                     return True
                 # print self.finite(), other.finite(), 111, self.tokens[0].content, other.tokens[0].content
@@ -1392,19 +1392,19 @@ class Span:
             return False
 
     def begin_with_and(self):
-        return self.tokens[0].lex == u'и'
+        return self.tokens[0].lex == 'и'
 
     def nominative(self):
         # print self.shared_tokens[1].content, 777
         for token in self.shared_tokens:
-            if re.match(u'(N...n.)|(P....n.)|(M...[n-])', token.pos):
+            if re.match('(N...n.)|(P....n.)|(M...[n-])', token.pos):
                 # print token.content
                 return True
         return False
 
     def participle_number(self):
         for token in self.shared_tokens:
-            if re.match(u'V.p.+', token.pos):
+            if re.match('V.p.+', token.pos):
                 # print token.content
                 self.participle += 1
         return self.participle
@@ -1416,31 +1416,31 @@ class Span:
             # print token.pos, token.content, 777, token.lex
             if token.predicate():
                 return True
-            elif token.infinitive() and self.shared_tokens[0].lex == u'и':
+            elif token.infinitive() and self.shared_tokens[0].lex == 'и':
                 return True
             # if re.match(u'(V.[imc].......)|(V.p....ps.)|(A.....s)', token.pos):
             #     # print u' '.join([token.content for token in self.shared_tokens])
             #     return True
-            elif re.match(u'V.n.......', token.pos) and self.shared_tokens[0].lex in [u'чтобы', u'перед тем как']:
+            elif re.match('V.n.......', token.pos) and self.shared_tokens[0].lex in ['чтобы', 'перед тем как']:
                 # print self.shared_tokens[0].content
                 return True
             # if token.lex in myData.predicates:
             #     # print self.shared_tokens[0].content
             #     return True
-            if token.lex == u'—' or token.lex == u'-':
+            if token.lex == '—' or token.lex == '-':
                 # print 1
                 # print u' '.join([token.content for token in self.shared_tokens]), token.content, token.lex
                 if self.tokens[0].lex not in myData.specificators:
                     self.ellipsis = True
-            elif token.lex == u'здесь':
+            elif token.lex == 'здесь':
                 self.null_copula = True
-            if re.match(u'(N...n.)|(P....n.)|(M...[n-])', token.pos):
+            if re.match('(N...n.)|(P....n.)|(M...[n-])', token.pos):
                 nominative += 1
                 if len(self.shared_tokens[i+1::]) > 1:
-                    if self.shared_tokens[i+1].lex == u'не':
-                        if self.shared_tokens[i+2].pos[0] in u'NS':
+                    if self.shared_tokens[i+1].lex == 'не':
+                        if self.shared_tokens[i+2].pos[0] in 'NS':
                             return True
-            if token.pos[0] == u'Q':
+            if token.pos[0] == 'Q':
                 # print token.content
                 nominative += 1
         # print u' '.join([token.content for token in self.shared_tokens])
@@ -1454,7 +1454,7 @@ class Span:
 
     def get_boundaries(self):
         # if self.tokens:
-        if self.tokens[0].content == u'\"':
+        if self.tokens[0].content == '\"':
             self.tokens.remove(self.tokens[0])
         self.begin = self.tokens[0].begin
         self.end = self.tokens[-1].end
@@ -1462,11 +1462,11 @@ class Span:
 
 class Token:
     def __init__(self):
-        self.content = u''
-        self.lex = u''
-        self.pos = u''
+        self.content = ''
+        self.lex = ''
+        self.pos = ''
         self.inflection = []
-        self.gender = u''
+        self.gender = ''
         self.begin = 0
         self.end = 0
         self.after_name = False
@@ -1477,28 +1477,28 @@ class Token:
         self.in_np = False
 
     def case(self):
-        if self.pos[0] == u'N':
-            if self.pos[4] == u'n':
-                return u'a'
+        if self.pos[0] == 'N':
+            if self.pos[4] == 'n':
+                return 'a'
             return self.pos[4]
-        elif self.pos[0] in u'AP':
-            if self.pos[5] == u'n':
-                return u'a'
+        elif self.pos[0] in 'AP':
+            if self.pos[5] == 'n':
+                return 'a'
             return self.pos[5]
         return False
 
     def coordinate(self, other):
         # pos = zip(self.pos, other.pos)[1:3:] + zip(self.pos, other.pos)[4:7:]  # без учета времени
-        if self.pos[0] == other.pos[0] == u'V':
+        if self.pos[0] == other.pos[0] == 'V':
             pos = zip(self.pos, other.pos)[1:7:] + zip(self.pos, other.pos)[8:9:]
             # print pos, self.content
         # elif self.pos[0] == u'A':
         else:
             # print self.content, other.content
-            pos = zip(self.pos, other.pos)
+            pos = list(zip(self.pos, other.pos))
             # print pos
         for item in pos:
-            if u'-' in item:
+            if '-' in item:
                 pass
             else:
                 if item[0] != item[1]:
@@ -1506,7 +1506,7 @@ class Token:
         return True
 
     def predicate(self):
-        if re.match(u'(V.[cim].......)|(V.p....ps.)|(A.....s)', self.pos):
+        if re.match('(V.[cim].......)|(V.p....ps.)|(A.....s)', self.pos):
             # print self.pos, self.content
             return True
         if self.lex in myData.predicates:
@@ -1515,27 +1515,27 @@ class Token:
         return False
 
     def gerund_participle(self):
-        if re.match(u'V.[gp].......', self.pos):
+        if re.match('V.[gp].......', self.pos):
             # print self.pos, self.content
             return True
 
     def infinitive(self):
-        if re.match(u'V.n.......', self.pos):
+        if re.match('V.n.......', self.pos):
             return True
         return False
 
     def end_of_span(self):
-        return self.pos == u'COMMA'
+        return self.pos == 'COMMA'
 
     def stupid_end_of_span(self):
-        if self.pos == u'COMMA':
+        if self.pos == 'COMMA':
             return True
-        elif self.pos == u'C':
+        elif self.pos == 'C':
             return True
         return False
 
     def agree_pr_noun(self, noun):
-        if noun.pos[0] == u'N':
+        if noun.pos[0] == 'N':
             if self.pos[3] == noun.pos[4]:
                 return True
         else:
@@ -1543,9 +1543,9 @@ class Token:
                 return True
 
     def is_adj(self):
-        if self.pos == u'A':
+        if self.pos == 'A':
             return True
-        elif self.pos == u'V':
+        elif self.pos == 'V':
             for var in self.inflection:
-                if u'прич' in var:
+                if 'прич' in var:
                     return True

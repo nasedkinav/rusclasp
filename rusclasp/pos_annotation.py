@@ -1,28 +1,28 @@
 # -*- coding:utf-8 -*-
 
 import time
-from splitter import Corpus
+from .splitter import Corpus
 
-__author__ = u'gree-gorey'
+__author__ = 'gree-gorey'
 
 
 def main():
     t1 = time.time()
 
     # new_corpus = Corpus(u'/home/gree-gorey/CorpusTemp/')
-    new_corpus = Corpus(u'/home/gree-gorey/CorpusClean/')
+    new_corpus = Corpus('/home/gree-gorey/CorpusClean/')
     # new_corpus = Corpus(u'/home/gree-gorey/stupid/')
     # new_corpus = Corpus(u'/home/gree-gorey/tested_tested/')
 
-    for text in new_corpus.texts(u'txt'):
+    for text in new_corpus.texts('txt'):
         # text.mystem_analyzer()
-        text.normalize(mode=u'write')
+        text.normalize(mode='write')
         text.treetagger_analyzer()
         text.write_pos_ann()
 
     t2 = time.time()
 
-    print t2 - t1
+    print(t2 - t1)
 
 
 if __name__ == '__main__':

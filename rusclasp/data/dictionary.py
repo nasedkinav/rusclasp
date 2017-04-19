@@ -3,23 +3,23 @@
 import codecs
 import time
 
-__author__ = u'Gree-gorey'
+__author__ = 'Gree-gorey'
 
 t1 = time.time()
 
 output = []
 
-with codecs.open(u'dict.opcorpora.txt', u'r', u'utf-8') as f:
+with codecs.open('dict.opcorpora.txt', 'r', 'utf-8') as f:
     for line in f:
-        line = line.rstrip().split(u'\t')
+        line = line.rstrip().split('\t')
         for item in line:
-            if u'CONJ' in item:
+            if 'CONJ' in item:
                 output.append(line[0].lower())
 
-with codecs.open(u'output.csv', u'w', u'utf-8') as w:
+with codecs.open('output.csv', 'w', 'utf-8') as w:
     for line in output:
-        w.write(line + u'\n')
+        w.write(line + '\n')
 
 t2 = time.time()
 
-print t2 - t1
+print(t2 - t1)

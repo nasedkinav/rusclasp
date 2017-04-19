@@ -3,17 +3,17 @@
 import time
 from structures import Corpus
 
-__author__ = u'gree-gorey'
+__author__ = 'gree-gorey'
 
 
 def main():
     t1 = time.time()
 
-    new_corpus = Corpus(u'/home/gree-gorey/CorpusTemp/')
+    new_corpus = Corpus('/home/gree-gorey/CorpusTemp/')
     # new_corpus = Corpus(u'/home/gree-gorey/tested/')
     # new_corpus = Corpus(u'/home/gree-gorey/tested_tested/')
 
-    for text in new_corpus.texts(u'json'):
+    for text in new_corpus.texts('json'):
         text.sentence_splitter()
         # print len(text.sentences)
         for sentence in text.sentences:
@@ -75,11 +75,11 @@ def main():
 
         text.write_clause_ann()
 
-        text.copy_into_brat(u'/opt/brat-v1.3_Crunchy_Frog/data/right/')
+        text.copy_into_brat('/opt/brat-v1.3_Crunchy_Frog/data/right/')
 
     t2 = time.time()
 
-    print t2 - t1
+    print(t2 - t1)
 
 
 if __name__ == '__main__':
