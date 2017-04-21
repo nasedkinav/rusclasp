@@ -1490,7 +1490,7 @@ class Token:
     def coordinate(self, other):
         # pos = zip(self.pos, other.pos)[1:3:] + zip(self.pos, other.pos)[4:7:]  # без учета времени
         if self.pos[0] == other.pos[0] == 'V':
-            pos = zip(self.pos, other.pos)[1:7:] + zip(self.pos, other.pos)[8:9:]
+            pos = list(zip(self.pos, other.pos))[1:7:] + list(zip(self.pos, other.pos))[8:9:]
             # print pos, self.content
         # elif self.pos[0] == u'A':
         else:
